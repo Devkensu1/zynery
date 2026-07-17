@@ -842,7 +842,12 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s;
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.4s ease-out;
+        }
+
+        .event-image img.img-loaded {
+            opacity: 1;
         }
 
         .event-card:hover .event-image img {
@@ -1232,6 +1237,17 @@
             .modal-body h3 {
                 font-size: 22px;
             }
+
+            /* Prevent horizontal overflow: at very narrow widths, minmax(320px,1fr)
+               on .portfolio-grid can exceed available space once padding is
+               subtracted, causing the whole page to scroll sideways on mobile. */
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1.25rem;
+            }
         }
     </style>
 </head>
@@ -1287,7 +1303,7 @@
                     <div class="hero-visual">
                         <div class="profile-frame">
                             <div class="profile-photo">
-                                <img src="images/zypfp.jpg" alt="Zyrone Nery" onerror="handleProfileImageError(this)">
+                                <img src="images/zypfp.jpg" alt="Zyrone Nery" style="opacity:0;transition:opacity 0.4s ease-out;" onload="this.style.opacity=1" onerror="handleProfileImageError(this)">
                             </div>
                         </div>
                         <div class="hero-highlights">
@@ -1651,23 +1667,23 @@
         });
 
     const events = [
-            { title:"Christening Event", role:"Coordinator", image:"images/CHRISTENING EVENT.png" },
-            { title:"Wedding Event", role:"Styling Team", image:"images/wedding event.png" },
-            { title:"CODM Barangay Huddles", role:"League Operations", image:"images/CODM BARANGAY HUDDLES.png" },
-            { title:"PUBGM Barangayan", role:"Coordinator", image:"images/PUBGM BARANGAYAN.png" },
-            { title:"PUBGM Anniversary", role:"Head League Operations", image:"images/PUBGM ANNIVERSARY.png" },
-            { title:"First Ever Infinix Mobile University League", role:"Organizer", image:"images/FIRST EVER INFINIX MOBILE UNIVERSITY LEAGUE.png" },
-            { title:"First Ever Offline Event of Garena Undawn", role:"Organizer", image:"images/FIRST EVER OFFLINE EVENT OF GARENA UNDAWN.png" },
-            { title:"MPL S14 Watch Party Under Infinix", role:"Organizer", image:"images/MPL S14 WATCH PARTY UNDER INFINIX.png" },
-            { title:"MPL Philippines Season 15", role:"Booth Facilitator and Logistics", image:"images/MPL PHILIPPINES S15.png" },
-            { title:"MPL Philippines Season 16", role:"Booth Facilitator and Logistics", image:"images/MPL PHILIPPINES S16.png" },
-            { title:"MLBB Barangay Tournaments", role:"Head Organizer", image:"images/MLBB BARANGAY TOURNAMENTS.png" },
-            { title:"Smart MLBB Tournament 1 Day League", role:"League Operations", image:"images/SMART MLBB TOURNAMENT 1 DAY LEAGUE.png" },
-            { title:"JBL x MLBB", role:"League Operations", image:"images/JBL X MLBB.png" },
-            { title:"Jollibee GameJoy Con", role:"League Operations", image:"images/JOLLIBEE GAMEJOY CON.png" },
-            { title:"HOK Invitationals S3", role:"Booth Facilitator", image:"images/HOK INVITATIONALS S3.png" },
-            { title:"HOK KIC", role:"Head Usher and Media Manager", image:"images/HOK KIC.png" },
-            { title:"TCL Event", role:"Production", image:"images/tcl event.png" }
+            { title:"Christening Event", role:"Coordinator", image:"images/christening-event.jpg" },
+            { title:"Wedding Event", role:"Styling Team", image:"images/wedding-event.jpg" },
+            { title:"CODM Barangay Huddles", role:"League Operations", image:"images/codm-barangay-huddles.jpg" },
+            { title:"PUBGM Barangayan", role:"Coordinator", image:"images/pubgm-barangayan.jpg" },
+            { title:"PUBGM Anniversary", role:"Head League Operations", image:"images/pubgm-anniversary.jpg" },
+            { title:"First Ever Infinix Mobile University League", role:"Organizer", image:"images/infinix-mobile-university-league.jpg" },
+            { title:"First Ever Offline Event of Garena Undawn", role:"Organizer", image:"images/garena-undawn-offline-event.jpg" },
+            { title:"MPL S14 Watch Party Under Infinix", role:"Organizer", image:"images/mpl-s14-watch-party-infinix.jpg" },
+            { title:"MPL Philippines Season 15", role:"Booth Facilitator and Logistics", image:"images/mpl-philippines-s15.jpg" },
+            { title:"MPL Philippines Season 16", role:"Booth Facilitator and Logistics", image:"images/mpl-philippines-s16.jpg" },
+            { title:"MLBB Barangay Tournaments", role:"Head Organizer", image:"images/mlbb-barangay-tournaments.jpg" },
+            { title:"Smart MLBB Tournament 1 Day League", role:"League Operations", image:"images/smart-mlbb-tournament.jpg" },
+            { title:"JBL x MLBB", role:"League Operations", image:"images/jbl-x-mlbb.jpg" },
+            { title:"Jollibee GameJoy Con", role:"League Operations", image:"images/jollibee-gamejoy-con.jpg" },
+            { title:"HOK Invitationals S3", role:"Booth Facilitator", image:"images/hok-invitationals-s3.jpg" },
+            { title:"HOK KIC", role:"Head Usher and Media Manager", image:"images/hok-kic.jpg" },
+            { title:"TCL Event", role:"Production", image:"images/tcl-event.jpg" }
         ];
         // Loading screen
         // FIX: previously tied to window 'load', which waits for ALL images
@@ -1709,7 +1725,7 @@
                 card.style.transitionDelay = `${(index % 6) * 0.08}s`;
                 card.innerHTML = `
                     <div class="event-image">
-                        ${event.image ? `<img src="${event.image}" alt="${event.title}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;" onerror="handleEventImageError(this, ${index})">` : `<div style="text-align: center; color: #999; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 107, 53, 0.05));">EVENT ${index + 1}</div>`}
+                        ${event.image ? `<img src="${event.image}" alt="${event.title}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;" onload="this.classList.add('img-loaded')" onerror="handleEventImageError(this, ${index})">` : `<div style="text-align: center; color: #999; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 107, 53, 0.05));">EVENT ${index + 1}</div>`}
                     </div>
                     <div class="event-content">
                         <div class="event-number">${String(index + 1).padStart(2, '0')}</div>
