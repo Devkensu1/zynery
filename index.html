@@ -1287,7 +1287,7 @@
                     <div class="hero-visual">
                         <div class="profile-frame">
                             <div class="profile-photo">
-                                <img src="images/zypfp.jpg" alt="Zyrone Nery">
+                                <img src="images/zypfp.jpg" alt="Zyrone Nery" onerror="handleProfileImageError(this)">
                             </div>
                         </div>
                         <div class="hero-highlights">
@@ -1553,6 +1553,16 @@
     </div>
 
     <script>
+        // Fallback UI for the hero profile photo if it fails to load
+        function handleProfileImageError(imgEl) {
+            imgEl.onerror = null;
+            const wrapper = imgEl.parentElement;
+            wrapper.style.display = 'flex';
+            wrapper.style.alignItems = 'center';
+            wrapper.style.justifyContent = 'center';
+            wrapper.innerHTML = '<span style="font-size:60px;font-weight:900;color:var(--accent);">ZN</span>';
+        }
+
         // Galaxy Background Canvas
         const canvas = document.getElementById('galaxyCanvas');
         const ctx = canvas.getContext('2d');
@@ -1660,13 +1670,35 @@
             { title:"TCL Event", role:"Production", image:"images/tcl event.png" }
         ];
         // Loading screen
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('hidden');
+        // FIX: previously tied to window 'load', which waits for ALL images
+        // (including the 17 portfolio images) to finish downloading before
+        // hiding the screen. On slow/unstable mobile connections, one slow
+        // or stalled image could keep the loading screen up indefinitely,
+        // making the whole page appear blank. Now it hides based on the DOM
+        // being ready, with a hard safety timeout as a backstop.
+        function hideLoadingScreen() {
+            const screen = document.getElementById('loadingScreen');
+            if (screen && !screen.classList.contains('hidden')) {
+                screen.classList.add('hidden');
                 animateSkillBars();
                 initCountUps();
-            }, 1200);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(hideLoadingScreen, 900);   // normal case
         });
+        window.addEventListener('load', () => {
+            setTimeout(hideLoadingScreen, 200);   // everything settled early
+        });
+        setTimeout(hideLoadingScreen, 4000);      // hard safety net, no matter what
+
+        // Fallback UI for a single event image that fails to load —
+        // keeps the card looking intentional instead of a blank broken-image icon.
+        function handleEventImageError(imgEl, index) {
+            imgEl.onerror = null;
+            const wrapper = imgEl.parentElement;
+            wrapper.innerHTML = `<div style="text-align:center;color:#999;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,107,53,0.05));">EVENT ${index + 1}</div>`;
+        }
 
         // Render portfolio
         function renderPortfolio() {
@@ -1677,7 +1709,7 @@
                 card.style.transitionDelay = `${(index % 6) * 0.08}s`;
                 card.innerHTML = `
                     <div class="event-image">
-                        ${event.image ? `<img src="${event.image}" alt="${event.title}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">` : `<div style="text-align: center; color: #999; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 107, 53, 0.05));">EVENT ${index + 1}</div>`}
+                        ${event.image ? `<img src="${event.image}" alt="${event.title}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;" onerror="handleEventImageError(this, ${index})">` : `<div style="text-align: center; color: #999; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 107, 53, 0.05));">EVENT ${index + 1}</div>`}
                     </div>
                     <div class="event-content">
                         <div class="event-number">${String(index + 1).padStart(2, '0')}</div>
